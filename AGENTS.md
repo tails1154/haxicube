@@ -63,5 +63,8 @@ No test suite. Verification = compile and run. CI builds for 30+ platforms in `.
 - No package manager, no npm, no cargo — pure C with Makefiles only
 - `doc/style.md`, `doc/modules.md`, `doc/portability.md` have useful context for code changes
 - Plugin API exported via `CC_API`/`CC_VAR` macros; see `doc/plugin-dev.md`
+- Mod system adds built-in mod menu, plugin settings API; see `doc/mods.md`
+- Build Windows cross-compile: `make -f misc/makefiles/windows.mk CC=i686-w64-mingw32-gcc`
+- Build mods for Windows: need `libClassiCube.a` from `gendef`/`dlltool`, then link with `-lClassiCube -Wl,--allow-multiple-definition`
 - Android/iOS builds use separate build systems (`misc/android/`, `misc/ios/`)
 - `third_party/bearssl/` is compiled directly into the binary for console SSL support

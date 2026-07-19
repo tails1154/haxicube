@@ -6,6 +6,7 @@
 #include "String_.h"
 #include "Funcs.h"
 #include "Screens.h"
+#define INTERNAL_PLUGIN_HDR
 #include "PluginAPI.h"
 
 #define MODSCREEN_MAX_BTNS 8
