@@ -1,6 +1,6 @@
 # Mods System
 
-ClassiCube has a built-in mod (plugin) system that allows loading external shared libraries at runtime. This document covers the mod menu, the plugin API, and how to create mods with settings.
+HaxiCube has a built-in mod (plugin) system that allows loading external shared libraries at runtime. This document covers the mod menu, the plugin API, and how to create mods with settings.
 
 ## Architecture
 
