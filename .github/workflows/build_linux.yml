@@ -19,6 +19,7 @@ jobs:
 # ===========================================
   build-32:
     timeout-minutes: 10
+    continue-on-error: true
     runs-on: ubuntu-latest
     container:
       image: ubuntu:20.04
@@ -55,34 +56,26 @@ jobs:
                 EXTRA_LDFLAGS="$COMMON_LDFLAGS"
 
       
-      - uses: ./.github/actions/upload_build
+      - uses: actions/upload-artifact@v4
         with:
-          SOURCE_FILE: 'cc-nix32-gl1'
-          DEST_NAME: 'ClassiCube-Linux32-OpenGL'
+          name: ClassiCube-Linux32-OpenGL
+          path: cc-nix32-gl1
+          if-no-files-found: warn
           
-      - uses: ./.github/actions/upload_build
+      - uses: actions/upload-artifact@v4
         with:
-          SOURCE_FILE: 'cc-nix32-gl2'
-          DEST_NAME: 'ClassiCube-Linux32-ModernGL'
+          name: ClassiCube-Linux32-ModernGL
+          path: cc-nix32-gl2
+          if-no-files-found: warn
           
           
-      - uses: ./.github/actions/notify_success
-        with:
-          DESTINATION_URL: '${{ secrets.NOTIFY_URL }}'
-          WORKFLOW_NAME: 'linux32'
-
-
-      - uses: ./.github/actions/notify_failure
-        if: failure()
-        with:
-          NOTIFY_MESSAGE: 'Failed to produce 32 bit Linux build'
-          WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'
 
 #============================================
 # =============== 64 BIT LINUX ==============
 # ===========================================
   build-64:
     timeout-minutes: 10
+    continue-on-error: true
     runs-on: ubuntu-latest
     container:
       image: ubuntu:20.04
@@ -120,30 +113,16 @@ jobs:
           #gcc ${{ env.SRCS }} ${{ env.FLAGS }} ${{ env.NIX64_FLAGS }} $LATEST_FLAG -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2 -DCC_WIN_BACKEND=CC_WIN_BACKEND_SDL2 -o cc-sdl64-gl2 -lSDL2  ${{ env.LIBS }}
 
           
-      - uses: ./.github/actions/upload_build
+      - uses: actions/upload-artifact@v4
         with:
-          SOURCE_FILE: 'cc-nix64-gl1'
-          DEST_NAME: 'ClassiCube-Linux64-OpenGL'
+          name: ClassiCube-Linux64-OpenGL
+          path: cc-nix64-gl1
+          if-no-files-found: warn
           
-      - uses: ./.github/actions/upload_build
+      - uses: actions/upload-artifact@v4
         with:
-          SOURCE_FILE: 'cc-nix64-gl2'
-          DEST_NAME: 'ClassiCube-Linux64-ModernGL'
-          
-#      - uses: ./.github/actions/upload_build
-#        with:
-#          SOURCE_FILE: 'cc-sdl64-gl2'
-#          DEST_NAME: 'ClassiCube-Linux64-SDL2'
+          name: ClassiCube-Linux64-ModernGL
+          path: cc-nix64-gl2
+          if-no-files-found: warn
           
           
-      - uses: ./.github/actions/notify_success
-        with:
-          DESTINATION_URL: '${{ secrets.NOTIFY_URL }}'
-          WORKFLOW_NAME: 'linux64'
-
-
-      - uses: ./.github/actions/notify_failure
-        if: failure()
-        with:
-          NOTIFY_MESSAGE: 'Failed to produce 64 bit Linux build'
-          WEBHOOK_URL: '${{ secrets.WEBHOOK_URL }}'

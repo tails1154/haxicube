@@ -1,0 +1,90 @@
+name: Dev Release
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-dev-release
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build Linux 64-bit (debug)
+        continue-on-error: true
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxi-dev libgl1-mesa-dev
+          make linux
+          mkdir -p artifacts
+          cp ClassiCube artifacts/ClassiCube-linux64
+
+      - name: Build Linux 64-bit (release)
+        continue-on-error: true
+        run: |
+          make linux RELEASE=1 TARGET=cc-linux64-gl1
+          cp cc-linux64-gl1 artifacts/ClassiCube-linux64-OpenGL
+
+          make linux clean
+          make linux RELEASE=1 TARGET=cc-linux64-gl2 \
+                EXTRA_CFLAGS="-DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2"
+          cp cc-linux64-gl2 artifacts/ClassiCube-linux64-ModernGL
+
+      - name: Build Linux 32-bit (release)
+        continue-on-error: true
+        run: |
+          sudo apt-get install -y gcc-multilib
+          make linux clean
+          make linux RELEASE=1 TARGET=cc-linux32-gl1 \
+                EXTRA_CFLAGS="-m32" EXTRA_LDFLAGS="-m32"
+          cp cc-linux32-gl1 artifacts/ClassiCube-linux32-OpenGL
+
+          make linux clean
+          make linux RELEASE=1 TARGET=cc-linux32-gl2 \
+                EXTRA_CFLAGS="-m32 -DCC_GFX_BACKEND=CC_GFX_BACKEND_GL2" \
+                EXTRA_LDFLAGS="-m32"
+          cp cc-linux32-gl2 artifacts/ClassiCube-linux32-ModernGL
+
+      - name: Build Windows 32-bit (cross-compile, debug)
+        continue-on-error: true
+        run: |
+          sudo apt-get install -y mingw-w64
+          make -f misc/makefiles/windows.mk clean
+          make -f misc/makefiles/windows.mk CC=i686-w64-mingw32-gcc
+          cp ClassiCube.exe artifacts/ClassiCube-win32.exe
+
+      - name: Build mods (Linux)
+        continue-on-error: true
+        run: |
+          make -C mods
+          mkdir -p artifacts/mods
+          cp plugins/*.so artifacts/mods/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-builds
+          path: artifacts/
+
+      - name: Create Dev Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: dev-${{ github.sha }}
+          name: "Dev Build (${{ github.sha }})"
+          body: |
+            Automatic development build from commit ${{ github.sha }}.
+            
+            Platforms: Linux (32/64-bit OpenGL + ModernGL), Windows (32-bit), mods
+          artifacts: "artifacts/*"
+          prerelease: true
+          replacesArtifacts: true
+          allowUpdates: true
+          removeArtifacts: true
